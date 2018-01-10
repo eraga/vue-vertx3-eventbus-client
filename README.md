@@ -1,4 +1,4 @@
-# vue-websocket [![NPM version](https://img.shields.io/npm/v/vue-vertx3-eventbus-client.svg)](https://www.npmjs.com/package/vue-vertx3-eventbus-client)
+# vue-vertx3-eventbus-client [![NPM version](https://img.shields.io/npm/v/vue-vertx3-eventbus-client.svg)](https://www.npmjs.com/package/vue-vertx3-eventbus-client)
 ![VueJS v2.x compatible](https://img.shields.io/badge/vue%202.x-compatible-green.svg)
 
 Vertx 3.5 EventBus plugin for VueJS that wraps official [vertx3-eventbus-client@3.5.0](https://www.npmjs.com/package/vertx3-eventbus-client).

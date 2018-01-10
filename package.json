@@ -1,6 +1,6 @@
 {
   "name": "vue-vertx3-eventbus-client",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "Vertx3 Eventbus client for Vue.js",
   "main": "dist/vue-vertx3-eventbus-client.js",
   "dependencies": {

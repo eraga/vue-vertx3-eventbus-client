@@ -1,6 +1,5 @@
 const path = require('path')
 const webpack = require('webpack')
-const Uglify = require('uglifyjs-webpack-plugin')
 const version = require('./package.json').version
 const banner = '/**\n' + ' * vue-vertx3-eventbus-client v' + version + '\n' + ' * https://github.com/eraga/vue-vertx3-eventbus-client\n' + ' * Released under the GPL-3.0 License.\n' + ' */\n'
 
@@ -16,7 +15,7 @@ module.exports = [
     },
 
     plugins: [
-      new Uglify({
+      new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
         uglifyOptions: {
           output: {

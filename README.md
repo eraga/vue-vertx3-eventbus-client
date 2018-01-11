@@ -29,15 +29,18 @@ Vue.use(VertxEventBus, {
     path: '/eventbus'
   })
 ```
-It is possible to pass `vertx3-eventbus-client` options too:
+It is possible to pass `vertx3-eventbus-client` and `SockJS` options too:
 ```js
 Vue.use(VertxEventBus, {
-    host: 'www.example.com',
-    path: '/eventbus',
-    options: {
-      opt: ''
-    }
-  })
+  path: '/eventbus',
+  port: 8082,
+  options: {
+    transports: [ // whitelist "long polling" and "websocket" Sock JS transports
+      'xhr-polling',
+      'websocket',
+    ],
+  },
+})
 ```
 
 
@@ -63,7 +66,7 @@ Use it in your components:
 
         self.$eventBus.send('eventbus.address', payload, headers, function (err, reply) {
           if (err) {
-            console.error('Failed to get list of initiatives', err)
+            console.error('Failed to send message', err)
             return
           }
           // console.log(reply)

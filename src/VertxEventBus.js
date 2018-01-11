@@ -1,15 +1,19 @@
 import EventBus from 'vertx3-eventbus-client'
 
+// noinspection JSUnusedGlobalSymbols
 export default {
-  install (Vue, options) {
-    options.host = options.host || window.location.protocol + '//' + window.location.hostname
-    options.port = options.port || window.location.port
-    options.path = options.path || ''
-    options.options = options.options || {}
+  install (Vue, config) {
+    config = config || {}
+    config.schema = config.schema || window.location.protocol
+    config.host = config.host || window.location.hostname
+    config.port = config.port || window.location.port
+    config.path = config.path || ''
+    config.options = config.options || {}
 
-    let address = window.location.protocol + '//' + window.location.hostname + ':' + options.port + options.path
+    let address = window.location.protocol + '//' + config.host + ':' + config.port + config.path
 
-    let eb = new EventBus(address, options.ebOptions)
+    let eb = new EventBus(address, config.options)
+    // noinspection JSUnusedGlobalSymbols
     Vue.prototype.$eventBus = eb
 
     function initComponentEventBus (context, dataInit, handlers) {
@@ -22,8 +26,11 @@ export default {
     }
 
     let addListeners = function () {
-      if (!this.$options['eventbus']) { return }
-      let dataInit = function () {}
+      if (!this.$options['eventbus']) {
+        return
+      }
+      let dataInit = function () {
+      }
       let handlers = []
 
       if (this.$options['eventbus'].data) {
@@ -43,7 +50,6 @@ export default {
       if (eb.state === EventBus.OPEN) {
         initComponentEventBus(context, dataInit, handlers)
       } else {
-        console.log(eb.state)
         eb.onopen = function () {
           initComponentEventBus(context, dataInit, handlers)
           eb.onopen = undefined
@@ -52,8 +58,12 @@ export default {
     }
 
     let removeListeners = function () {
-      if (!this.$options['eventbus']) { return }
-      if (!this.$options['eventbus'].handlers) { return }
+      if (!this.$options['eventbus']) {
+        return
+      }
+      if (!this.$options['eventbus'].handlers) {
+        return
+      }
       let handlers = this.$options['eventbus'].handlers
       if (eb.state === EventBus.OPEN) {
         handlers.forEach(function (handler) {
@@ -64,8 +74,8 @@ export default {
     }
 
     Vue.mixin({
-      created: addListeners,
-      beforeDestroy: removeListeners
+      beforeCreate: addListeners,
+      beforeDestroy: removeListeners,
     })
-  }
+  },
 }

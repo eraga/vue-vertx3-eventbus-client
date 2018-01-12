@@ -123,6 +123,7 @@ export default {
             context.saving = false
             return
           }
+          context.saving = false
         })
       }
     },

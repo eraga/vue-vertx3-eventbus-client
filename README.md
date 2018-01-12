@@ -1,5 +1,5 @@
 # vue-vertx3-eventbus-client [![NPM version](https://img.shields.io/npm/v/vue-vertx3-eventbus-client.svg)](https://www.npmjs.com/package/vue-vertx3-eventbus-client)
-![VueJS v2.x compatible](https://img.shields.io/badge/vue%202.x-compatible-green.svg)
+![VueJS v2.x compatible](https://img.shields.io/badge/vue%202.x-compatible-green.svg) ![VertX v3.5 compatible](https://img.shields.io/badge/VertX%203.5-compatible-green.svg)
 
 Vertx 3.5 EventBus plugin for VueJS that wraps official [vertx3-eventbus-client@3.5.0](https://www.npmjs.com/package/vertx3-eventbus-client).
 
@@ -44,11 +44,11 @@ Vue.use(VertxEventBus, {
 ```
 
 
-Use it in your components:
+Use it in your components with configuration at `eventbus` section:
 ```html
 <script>
   export default {
-    name: 'HelloWorld',
+    name: 'Hello Vertx EventBus',
     data () {
       return {
         tableData: []
@@ -57,38 +57,41 @@ Use it in your components:
     methods: {
     },
     eventbus: {
-      data (self) {
-        let headers = {
-          action: 'fetchAllPages'
-        }
+      lifecycleHooks: {
+        created (context, eventbus) {
 
-        let payload = {}
-
-        self.$eventBus.send('eventbus.address', payload, headers, function (err, reply) {
-          if (err) {
-            console.error('Failed to send message', err)
-            return
+          let header = {
+            action: 'fetchAllPages',
           }
-          // console.log(reply)
-          self.tableData = reply.body
-        })
+          
+          let payload = {}
+
+          eventbus.send('initiatives.db.queue', payload, header, function (err, reply) {
+            if (err) {
+              console.error('Failed to get list of pages', err)
+              return
+            }
+            
+            context.tableData = reply.body
+          })
+        },
       },
-      // Array of message handler objects
       handlers: [
         {
-          address: 'eventbus.address',
+          address: 'page.saved',
           headers: {},
-          callback: function (error, message) {
-            if (error) {
-              console.error(error)
-            }
-          }
-        }
-      ]
-    }
+          callback: function () {
+            // execute something upon receipt 
+          },
+        },
+      ],
+    },
   }
 </script>
 ```
+
+`lifecycleHooks` are executed together with corresponding Vue hooks: `created`, `mounted`, etc.
+Put your `handler` objects to `handlers` section. They will be registered at `beforeCreate` and unregistered at `beforeDestroy`.
 
 ## Build
 This command will build a distributable version in the `dist` directory.

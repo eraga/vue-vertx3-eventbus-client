@@ -16,66 +16,201 @@ export default {
     // noinspection JSUnusedGlobalSymbols
     Vue.prototype.$eventBus = eb
 
-    function initComponentEventBus (context, dataInit, handlers) {
-      dataInit(context)
+    eb.onclose = function () {
+      console.log('eb closed!!!')
+      handlersToReg = []
+      handlersToUnReg = []
+    }
 
-      handlers.forEach(function (handler) {
-        eb.registerHandler(handler.address, handler.headers, handler.callback)
-        console.debug('registerHandler', handler.address)
+    /**
+     * Directives
+     */
+
+    /**
+     * v-eb-handler:address.data="tableData"
+     * v-eb-handler:address.method="ebCallback"
+     * v-eb-handler:address="{headers:{}, data: tableData, method: ebCallback}"
+     */
+    // Vue.directive('eb-handler', {
+    //   bind (el, binding, vnode, oldVnode) {
+    //     if (binding.modifiers.data && binding.modifiers.method) {
+    //       throw new TypeError('can`t have both data and method binding.modifiers', binding.modifiers)
+    //     }
+    //
+    //     let handler = {}
+    //
+    //     handler.address = binding.arg
+    //
+    //     console.log(vnode.context.$options)
+    //     if (binding.modifiers.data) {
+    //       console.log('data', binding.value)
+    //     } else if (binding.modifiers.method) {
+    //       console.log('meth', binding.value)
+    //     } else {
+    //       console.log('json', binding.value, binding.expression)
+    //     }
+    //
+    //     handler.headers = binding.expression
+    //     handler.callback = binding.modifiers[0]
+    //     console.log(handler, binding.modifiers)
+    //     eb.registerHandler(handler.address, handler.headers, handler.callback)
+    //   },
+    //   unbind (el, binding, vnode, oldVnode) {
+    //     //
+    //   },
+    // })
+
+    /**
+     * Mixin methods
+     */
+
+    let hooks = []
+    let handlersToReg = []
+    let handlersToUnReg = []
+
+    let regHandlers = function (handler) {
+      eb.registerHandler(handler.address, handler.headers, handler.callback)
+    }
+
+    let unRegHandlers = function (handler) {
+      eb.unregisterHandler(handler.address, handler.headers, handler.callback)
+    }
+
+    let ebOnOpen = function () {
+      hooks.forEach((hook) => {
+        hook.hook(hook.context, eb)
       })
+
+      handlersToReg.forEach(regHandlers)
+
+      handlersToUnReg.forEach(unRegHandlers)
     }
 
-    let addListeners = function () {
-      if (!this.$options['eventbus']) {
-        return
-      }
-      let dataInit = function () {
-      }
-      let handlers = []
-
-      if (this.$options['eventbus'].data) {
-        if (typeof this.$options['eventbus'].data !== 'function') {
-          console.error('`data` must be function')
-        }
-
-        dataInit = this.$options['eventbus'].data
-      }
-
-      if (this.$options['eventbus'].handlers) {
-        handlers = this.$options['eventbus'].handlers
-      }
-
-      let context = this
-
+    function safeExecuteHook (hook, context) {
       if (eb.state === EventBus.OPEN) {
-        initComponentEventBus(context, dataInit, handlers)
+        hook(context, eb)
       } else {
-        eb.onopen = function () {
-          initComponentEventBus(context, dataInit, handlers)
-          eb.onopen = undefined
-        }
+        hooks.push({
+          hook: hook,
+          context: context,
+        })
+        eb.onopen = ebOnOpen
       }
     }
 
-    let removeListeners = function () {
+    let addHandlers = function (context) {
+      if (!context.$options['eventbus'].handlers) {
+        return
+      }
+      let handlers = context.$options['eventbus'].handlers
+
+      if (eb.state === EventBus.OPEN) {
+        handlers.forEach(regHandlers)
+      } else {
+        handlersToReg.concat(handlers)
+        eb.onopen = ebOnOpen
+      }
+    }
+
+    let removeHandlers = function (context) {
+      if (!context.$options['eventbus'].handlers) {
+        return
+      }
+      let handlers = context.$options['eventbus'].handlers
+
+      if (eb.state === EventBus.OPEN) {
+        handlers.forEach(unRegHandlers)
+      } else {
+        handlersToUnReg.concat(handlers)
+        eb.onopen = ebOnOpen
+      }
+    }
+
+    let runLifecicleHook = function (context, hookName) {
+      if (!context.$options['eventbus'].lifecycleHooks) {
+        return
+      }
+
+      if (context.$options['eventbus'].lifecycleHooks[hookName]) {
+        safeExecuteHook(context.$options['eventbus'].lifecycleHooks[hookName], context)
+      }
+    }
+
+    let beforeCreate = function () {
       if (!this.$options['eventbus']) {
         return
       }
-      if (!this.$options['eventbus'].handlers) {
+
+      runLifecicleHook(this, 'beforeCreate')
+      addHandlers(this)
+    }
+
+    let created = function () {
+      if (!this.$options['eventbus']) {
         return
       }
-      let handlers = this.$options['eventbus'].handlers
-      if (eb.state === EventBus.OPEN) {
-        handlers.forEach(function (handler) {
-          console.debug('unregisterHandler', handler.address)
-          eb.unregisterHandler(handler.address, handler.headers, handler.callback)
-        })
+
+      runLifecicleHook(this, 'created')
+    }
+
+    let beforeMount = function () {
+      if (!this.$options['eventbus']) {
+        return
       }
+
+      runLifecicleHook(this, 'beforeMount')
+    }
+
+    let mounted = function () {
+      if (!this.$options['eventbus']) {
+        return
+      }
+
+      runLifecicleHook(this, 'mounted')
+    }
+
+    let beforeUpdate = function () {
+      if (!this.$options['eventbus']) {
+        return
+      }
+
+      runLifecicleHook(this, 'beforeUpdate')
+    }
+
+    let updated = function () {
+      if (!this.$options['eventbus']) {
+        return
+      }
+
+      runLifecicleHook(this, 'updated')
+    }
+
+    let beforeDestroy = function () {
+      if (!this.$options['eventbus']) {
+        return
+      }
+
+      runLifecicleHook(this, 'beforeDestroy')
+
+      removeHandlers(this)
+    }
+    let destroyed = function () {
+      if (!this.$options['eventbus']) {
+        return
+      }
+
+      runLifecicleHook(this, 'destroyed')
     }
 
     Vue.mixin({
-      beforeCreate: addListeners,
-      beforeDestroy: removeListeners,
+      beforeCreate: beforeCreate,
+      created: created,
+      beforeMount: beforeMount,
+      mounted: mounted,
+      beforeUpdate: beforeUpdate,
+      updated: updated,
+      beforeDestroy: beforeDestroy,
+      destroyed: destroyed,
     })
   },
 }

@@ -66,7 +66,7 @@ Use it in your components with configuration at `eventbus` section:
           
           let payload = {}
 
-          eventbus.send('initiatives.db.queue', payload, header, function (err, reply) {
+          eventbus.send('pages.db.queue', payload, header, function (err, reply) {
             if (err) {
               console.error('Failed to get list of pages', err)
               return
@@ -92,6 +92,43 @@ Use it in your components with configuration at `eventbus` section:
 
 `lifecycleHooks` are executed together with corresponding Vue hooks: `created`, `mounted`, etc.
 Put your `handler` objects to `handlers` section. They will be registered at `beforeCreate` and unregistered at `beforeDestroy`.
+
+
+EventBusClient object can be reached with `this.$eventBus`:
+```html
+<script>
+export default {
+    name: 'Hello Vertx EventBus',
+    data () {
+      return {
+        form: {}, // object contaning form fields
+        saving: false //saving indicator 
+      }
+    },
+    methods: {
+      formSubmit () {
+        
+        let header = {action: 'savePage'}
+        if (!this.$route.params.id) {
+          header.action = 'createPage'
+        }
+        this.saving = true
+
+        let body = JSON.parse(JSON.stringify(this.form))
+
+        let context = this
+        this.$eventBus.send('pages.db.queue', body, header, function (err, reply) {
+          if (err) {
+            console.error('Failed to save page', err)
+            context.saving = false
+            return
+          }
+        })
+      }
+    },
+}
+</script>
+```
 
 ## Build
 This command will build a distributable version in the `dist` directory.

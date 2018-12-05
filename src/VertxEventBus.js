@@ -107,7 +107,7 @@ export default {
       if (eb.state === EventBus.OPEN) {
         handlers.forEach(regHandlers)
       } else {
-        handlersToReg.concat(handlers)
+        handlersToReg = handlersToReg.concat(handlers)
         eb.onopen = ebOnOpen
       }
     }
@@ -121,7 +121,7 @@ export default {
       if (eb.state === EventBus.OPEN) {
         handlers.forEach(unRegHandlers)
       } else {
-        handlersToUnReg.concat(handlers)
+        handlersToUnReg = handlersToUnReg.concat(handlers)
         eb.onopen = ebOnOpen
       }
     }

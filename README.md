@@ -1,7 +1,7 @@
 # vue-vertx3-eventbus-client [![NPM version](https://img.shields.io/npm/v/vue-vertx3-eventbus-client.svg)](https://www.npmjs.com/package/vue-vertx3-eventbus-client)
-![VueJS v2.x compatible](https://img.shields.io/badge/vue%202.x-compatible-green.svg) ![VertX v3.5 compatible](https://img.shields.io/badge/VertX%203.5-compatible-green.svg)
+![VueJS v2.x compatible](https://img.shields.io/badge/vue%202.x-compatible-green.svg) ![VertX v3.6 compatible](https://img.shields.io/badge/VertX%203.6-compatible-green.svg)
 
-Vertx 3.5 EventBus plugin for VueJS that wraps official [vertx3-eventbus-client@3.5.0](https://www.npmjs.com/package/vertx3-eventbus-client).
+Vertx 3.6 EventBus plugin for VueJS that wraps official [vertx3-eventbus-client@3.6.0](https://www.npmjs.com/package/vertx3-eventbus-client).
 
 
 ## Install

@@ -10,7 +10,7 @@ export default {
     config.path = config.path || ''
     config.options = config.options || {}
 
-    let address = window.location.protocol + '//' + config.host + ':' + config.port + config.path
+    let address = config.schema + '//' + config.host + ':' + config.port + config.path
 
     let eb = new EventBus(address, config.options)
     // noinspection JSUnusedGlobalSymbols

@@ -4,7 +4,7 @@
   "description": "Vertx3 Eventbus client for Vue.js",
   "main": "dist/vue-vertx3-eventbus-client.js",
   "dependencies": {
-    "vertx3-eventbus-client": "^3.6.0"
+    "vertx3-eventbus-client": "^3.9.4"
   },
   "devDependencies": {
     "babel": "^6.23.0",
